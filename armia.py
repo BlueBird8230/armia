@@ -23,9 +23,11 @@ def best_diff(df, maxdiff = 8):
     for i in range(0, maxdiff):
         temp = df.copy() #每次循环前，重置
         if i == 0:
-            temp['diff'] = temp[temp.columns[1]]
+            # temp['diff'] = temp[temp.columns[1]]
+            temp['diff'] = temp[temp.columns[0]]
         else:
-            temp['diff'] = temp[temp.columns[1]].diff(i)
+            # temp['diff'] = temp[temp.columns[1]].diff(i)
+            temp['diff'] = temp[temp.columns[0]].diff(i)
             temp = temp.drop(temp.iloc[:i].index) #差分后，前几行的数据会变成nan，所以删掉
         pvalue = test_stationarity(temp['diff'])
         p_set[i] = pvalue
@@ -96,4 +98,4 @@ def run_aram(df, maxar, maxma, test_size=14):
 
 if __name__ == '__main__':
     data = obtain_data()
-    run_aram(data, 5, 5, 5)
+    run_aram(data, 5, 5)
