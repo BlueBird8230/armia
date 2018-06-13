@@ -10,7 +10,7 @@ import pyflux as pf
 
 def obtain_data():
     dateparse = lambda dates: pd.datetime.strptime(dates, '%Y')
-    return pd.read_csv('data.csv', parse_dates=['year'], index_col='year', date_parser=dateparse)
+    return pd.read_csv('data_armia.csv', parse_dates=['year'], index_col='year', date_parser=dateparse)
 
 
 def test_stationarity(timeseries):
@@ -70,11 +70,13 @@ def run_aram(df, maxar, maxma, test_size=14):
     #    test_size = int(len(data) * 0.33)
     train_size = len(data)-int(test_size)
     train, test = data[:train_size], data[train_size:]
+
+    # stationarity of log value
     if test_stationarity(train[train.columns[1]]) < 0.01:
         print('平稳，不需要差分')
         diffn = 0
     else:
-        diffn = best_diff(train, maxdiff = 8)
+        diffn = best_diff(train, maxdiff=8)
         train = produce_diffed_timeseries(train, diffn)
         print('差分阶数为'+str(diffn)+'，已完成差分')
     print('开始进行ARMA拟合')
@@ -87,6 +89,7 @@ def run_aram(df, maxar, maxma, test_size=14):
     test = test['total']
     test_predict = model.predict(int(test_size))
     test_predict = predict_recover(test_predict, train, diffn)
+    print('预测值为：', test_predict)
     RMSE = np.sqrt(((np.array(test_predict)-np.array(test))**2).sum()/test.size)
     print("测试集的RMSE为："+str(RMSE))
 
